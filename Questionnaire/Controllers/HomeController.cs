@@ -49,7 +49,14 @@ namespace Questionnaire.Controllers
             _context.Questionnaires.Add(questionnaire);
             _context.SaveChanges();
 
-            return View();
+            var score = 0;
+
+            foreach (var qa in questionAnswers)
+            {
+                score += answers.First(c => c.Id == qa.AnswerId).Score;
+            }
+
+            return Ok(score);
         }
 
         public IActionResult Privacy()
