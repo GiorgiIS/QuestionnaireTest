@@ -80,8 +80,7 @@
             data: JSON.stringify(model),
             datatype: "json",
             success: function (result) {
-                //do something
-                alert("Your score is - " + result);
+                alert("Your score is: " + result);
                 console.log(result);
             },
             error: function (xmlhttprequest, textstatus, errorthrown) {
