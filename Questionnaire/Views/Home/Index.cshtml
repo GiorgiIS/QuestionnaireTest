@@ -1,0 +1,100 @@
+﻿@using Questionnaire.Logic.Entities;
+@model Tuple<List<Question>, List<Answer>>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+
+    @if (Model != null)
+    {
+
+        var questions = Model.Item1;
+        var answers = Model.Item2;
+
+
+        <form id="form-sbm" method="post">
+            @foreach (var question in questions)
+            {
+                <div id="@question.Id" class="@(question.IsMainQuestion ? "" : "hidden") test ">
+
+                    <div>@question.Text</div>
+
+                    @foreach (var answer in answers)
+                    {
+                        <input type="radio" next-question="@question.NextQuestionId" hide="@(answer.Id == question.NextQuestionConditionId ? false : true)"
+                               id="@answer.Id" name="@question.Id" value="@answer.Text">
+
+                        <label for="@answer.Text"> @answer.Text</label>
+                    }
+
+                </div>
+            }
+            <input type="submit" id="submit" name="submit" value="Submit" onclick="" />
+        </form>
+    }
+
+    else
+    {
+        <p>Thanks for participating</p>
+    }
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).on("change", "input[next-question]", function myfunction() {
+        let nextQuestionId = $(this).attr("next-question");
+        if ($(this).attr("hide")) {
+            $('.test[id=' + nextQuestionId + ']').addClass("hidden");
+        }
+        else {
+            $('.hidden[id=' + nextQuestionId + ']').removeClass("hidden");
+        }
+    });
+
+    $("#submit").click(function (e) {
+        e.preventDefault();
+
+        var array = $("#form-sbm").serializeArray();
+
+        var model = [];
+
+        for (var i = 0, j = 0; i < array.length; i++) {
+            var element = $('.test[id=' + array[i].name + ']');
+            if (!element.hasClass('hidden')) {
+                model[j] = { "QuestionId": array[i].name, "Answer": array[i].value };
+                j++;
+            }
+        }
+
+        model.pop();
+
+        debugger;
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: "home/index",
+            data: JSON.stringify(model),
+            datatype: "json",
+            success: function (result) {
+                //do something
+                alert("SUCCESS = " + result.d);
+                console.log(result);
+            },
+            error: function (xmlhttprequest, textstatus, errorthrown) {
+                alert(" conection to the server failed ");
+                console.log("error: " + errorthrown);
+            }
+        });
+    });
+
+</script>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
